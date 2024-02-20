@@ -4217,3 +4217,19 @@ class FerriteTestnet(Ferrite):
         'enode2.ferritecoin.org s t',
         'enode3.ferritecoin.org s t',
     ]
+
+
+class Chaucha(Coin):
+    NAME = "Chaucha"
+    SHORTNAME = "CHA"
+    NET = "mainnet"
+    P2PKH_VERBYTE = bytes.fromhex("58")
+    P2SH_VERBYTES = (bytes.fromhex("50"), bytes.fromhex("05"))
+    WIF_BYTE = bytes.fromhex("D8")
+    GENESIS_HASH = ('6e27bffd2a104bea1c870be76aab1cce'
+                    '13bebb0db40606773827517da9528174')
+    DESERIALIZER = lib_tx.DeserializerLitecoin
+    TX_COUNT = 3138848
+    TX_COUNT_HEIGHT = 2997010
+    TX_PER_BLOCK = 1
+    PEERS = []
