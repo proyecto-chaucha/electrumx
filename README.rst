@@ -25,3 +25,13 @@ Documentation
 
 See `readthedocs <https://electrumx-spesmilo.readthedocs.io/>`_.
 
+
+Usage
+=====
+
+- cd electrumx && mkdir electrum_db
+- export DB_DIRECTORY=/home/<username>/electrumx/electrum_db
+- export COIN=Chaucha
+- export DAEMON_URL=http://<RPC USER>:<RPC PASSWORD>@127.0.0.1:<RPC PORT>
+- export SERVICES=rpc://:8000
+- ./electrumx_server
