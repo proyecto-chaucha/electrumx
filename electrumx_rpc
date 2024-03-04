@@ -138,10 +138,7 @@ def main():
                     session.transport._framer.max_size = 0
                     session.sent_request_timeout = timeout
                     result = await session.send_request(method, args)
-                    if method in ('query', ):
-                        for line in result:
-                            print(line)
-                    elif method in (
+                    if method in (
                             'debug_memusage_list_all_objects',
                             'debug_memusage_get_random_backref_chain',
                     ):

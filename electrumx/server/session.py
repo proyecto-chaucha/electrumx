@@ -525,11 +525,13 @@ class SessionManager:
         coin = self.env.coin
         db = self.db
         lines = []
+        resp = {}
 
         def arg_to_hashX(arg):
             try:
                 script = bytes.fromhex(arg)
                 lines.append(f'Script: {arg}')
+                resp['script'] = arg
                 return coin.hashX_from_script(script)
             except ValueError:
                 pass
@@ -537,6 +539,7 @@ class SessionManager:
             try:
                 hashX = coin.address_to_hashX(arg)
                 lines.append(f'Address: {arg}')
+                resp['address'] = arg
                 return hashX
             except Base58Error:
                 pass
@@ -545,6 +548,7 @@ class SessionManager:
                 script = coin.build_name_index_script(arg.encode("ascii"))
                 hashX = coin.name_hashX_from_script(script)
                 lines.append(f'Name: {arg}')
+                resp['name'] = arg
                 return hashX
             except (AttributeError, UnicodeEncodeError):
                 pass
@@ -556,15 +560,23 @@ class SessionManager:
             if not hashX:
                 continue
             n = None
+
             history = await db.limited_history(hashX, limit=limit)
+            resp_history = []
             for n, (tx_hash, height) in enumerate(history):
+                resp_history.append({'hash': hash_to_hex_str(tx_hash), 'height': height})
                 lines.append(f'History #{n:,d}: height {height:,d} '
                              f'tx_hash {hash_to_hex_str(tx_hash)}')
             if n is None:
                 lines.append('No history found')
+                
+            resp['history'] = resp_history
+
             n = None
             utxos = await db.all_utxos(hashX)
+            resp_utxos = []
             for n, utxo in enumerate(utxos, start=1):
+                resp_utxos.append({'hash': hash_to_hex_str(utxo.tx_hash), 'n': utxo.tx_pos, 'amount': utxo.value})
                 lines.append(f'UTXO #{n:,d}: tx_hash '
                              f'{hash_to_hex_str(utxo.tx_hash)} '
                              f'tx_pos {utxo.tx_pos:,d} height '
@@ -574,11 +586,14 @@ class SessionManager:
             if n is None:
                 lines.append('No UTXOs found')
 
+            resp['utxos'] = resp_utxos
+
             balance = sum(utxo.value for utxo in utxos)
+            resp['balance'] = balance
             lines.append(f'Balance: {coin.decimal_value(balance):,f} '
                          f'{coin.SHORTNAME}')
 
-        return lines
+        return resp
 
     async def rpc_sessions(self):
         '''Return statistics about connected sessions.'''
